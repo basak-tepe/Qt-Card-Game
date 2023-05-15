@@ -14,6 +14,11 @@
 #include <QSequentialAnimationGroup>
 #include <QRandomGenerator>
 #include <QTime>
+#include <QList>
+#include <QStringList>
+#include <algorithm>
+#include <QTimer>
+
 
 int main(int argc, char *argv[])
 {
@@ -23,12 +28,14 @@ int main(int argc, char *argv[])
     QLabel *label = new QLabel("Matching Cards Game", widget);
     QFont font("Arial", 24);
     label->setFont(font);
+    int score = 0;
+    int triesRemaining = 50;
 
-    QLabel *scoreLabel = new QLabel("Score: 0", widget);
+    QLabel *scoreLabel = new QLabel(QString("Score: %1").arg(score), widget);
     QFont font2("Arial", 16);
     scoreLabel->setFont(font2);
 
-    QLabel *triesLabel = new QLabel("Number of tries Remaining: 50", widget);
+    QLabel *triesLabel = new QLabel(QString("Number of tries Remaining: %1").arg(triesRemaining), widget);
     QFont font3("Arial", 16);
     triesLabel->setFont(font3);
 
@@ -55,25 +62,79 @@ int main(int argc, char *argv[])
     // Create a list to store the cards
     QList<QPushButton*> cards;
 
+    // Create a list of animal names
+    QStringList animalNames;
+    animalNames << "Cat" << "Dog" << "Elephant" << "Lion" << "Giraffe"
+                << "Monkey" << "Tiger" << "Bear" << "Kangaroo" << "Penguin"
+                << "Snake" << "Zebra" << "Hippo" << "Owl" << "Koala";
+
+    // Double the list of animal names
+    animalNames += animalNames;
+
+    // Shuffle the animal names
+    std::random_shuffle(animalNames.begin(), animalNames.end());
+    QPushButton *firstCard = nullptr; // Store the first opened card
+    QPushButton *secondCard = nullptr; // Store the second opened card
+
     for (int row = 0; row < 5; ++row) {
         for (int col = 0; col < 6; ++col) {
             QPushButton *card = new QPushButton(widget);
             card->setFixedSize(100, 100);
 
-            // Set the front and back text for the card
-            QString frontText = QString("Card (%1, %2)").arg(row).arg(col);
-            QString backText = "Back";
-
-            card->setText(backText); // Set the initial text to the back side
-
-            // Connect the card clicked signal to the slot that flips the card
-            QObject::connect(card, &QPushButton::clicked, [=]() {
+            QString text = animalNames.at(row * 6 + col);
+            QString backText = "?";
+            card->setText(backText);
+            QObject::connect(card, &QPushButton::clicked, [card,&firstCard,&secondCard,text,&cards,&score,&triesRemaining,backText, &scoreLabel, &card, &triesLabel]() mutable {
                 if (card->text() == backText) {
-                    card->setText(frontText); // Flip to the front text
-                } else {
-                    card->setText(backText); // Flip to the back text
+                    if (firstCard == nullptr) {
+                        firstCard = card;
+                        firstCard->setText(text);
+                    } else if (secondCard == nullptr) {
+                        secondCard = card;
+                        secondCard->setText(text);
+
+                        // Check if the cards match
+                        if (firstCard->text() == secondCard->text()) {
+                            // Cards match
+                            score += 1;
+                            scoreLabel->setText(QString("Score: %1").arg(score));
+
+                            firstCard->setEnabled(false);
+                            secondCard->setEnabled(false);
+
+                            firstCard = nullptr;
+                            secondCard = nullptr;
+
+                            // Disable the matched cards
+
+
+                            // Check if the game is over (all cards matched)
+                            if (score == 15) {
+                                // Game over
+                                // Display a message or perform any necessary actions
+                            }
+                        } else {
+                            // Cards do not match
+                            triesRemaining -= 1;
+                            triesLabel->setText(QString("Number of tries Remaining: %1").arg(triesRemaining));
+                            QTimer::singleShot(1000, [backText,&firstCard,&secondCard, &cards]()mutable  {
+                                // Flip the cards back to the back text
+                                firstCard->setText(backText);
+                                secondCard->setText(backText);
+                                firstCard = nullptr;
+                                secondCard = nullptr;
+
+                                // Enable all other cards
+                                for (QPushButton *c : cards) {
+                                    c->setEnabled(true);
+                                }
+                            });
+                        }
+                    }
                 }
             });
+
+
 
             gridLayout->addWidget(card, row, col);
             cards.append(card); // Add the card to the list
@@ -88,3 +149,7 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+
+
+
+
