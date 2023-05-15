@@ -17,32 +17,26 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv); // create a QApplication object
-    QWidget *widget = new QWidget; // create a QWidget object
+    QApplication app(argc, argv);
+    QWidget *widget = new QWidget;
 
-    // create a QLabel widget and set its text
-    QLabel *label = new QLabel("Matching Cards Game", widget); // create a QLabel widget
+    QLabel *label = new QLabel("Matching Cards Game", widget);
     QFont font("Arial", 24);
-    label->setFont(font); // set the font on the label widget
+    label->setFont(font);
 
-    QLabel *scoreLabel = new QLabel("Score: 0", widget); // create a score display QLabel widget
+    QLabel *scoreLabel = new QLabel("Score: 0", widget);
     QFont font2("Arial", 16);
     scoreLabel->setFont(font2);
 
-    QLabel *triesLabel = new QLabel("Number of tries Remaining: 50", widget); // create a try count display QLabel widget
+    QLabel *triesLabel = new QLabel("Number of tries Remaining: 50", widget);
     QFont font3("Arial", 16);
     triesLabel->setFont(font3);
 
-
-    QPushButton *newGameButton = new QPushButton("New Game", widget); // create a new game QPushButton widget
+    QPushButton *newGameButton = new QPushButton("New Game", widget);
     QFont font4("Arial", 16);
     newGameButton->setFont(font4);
-    newGameButton->setMinimumSize(QSize(100, 50)); // sets the minimum size to be 100 x 50 pixels
+    newGameButton->setMinimumSize(QSize(100, 50));
 
-
-
-
-    //responsive design
     QHBoxLayout *hlayout1 = new QHBoxLayout();
     QHBoxLayout *hlayout2 = new QHBoxLayout();
     QVBoxLayout *vlayout = new QVBoxLayout(widget);
@@ -55,48 +49,42 @@ int main(int argc, char *argv[])
     hlayout2->addWidget(newGameButton);
     vlayout->addLayout(hlayout2);
 
-
-
-
-
     QGridLayout *gridLayout = new QGridLayout(widget);
-    gridLayout->setSpacing(10); // set the spacing between cards
+    gridLayout->setSpacing(10);
 
-    // create 6 x 5 cards
+    // Create a list to store the cards
+    QList<QPushButton*> cards;
+
     for (int row = 0; row < 5; ++row) {
         for (int col = 0; col < 6; ++col) {
             QPushButton *card = new QPushButton(widget);
-            card->setFixedSize(100, 100); // set the fixed size of the card
+            card->setFixedSize(100, 100);
 
-            // set the front and back image for the card
+            // Set the front and back text for the card
+            QString frontText = QString("Card (%1, %2)").arg(row).arg(col);
+            QString backText = "Back";
 
+            card->setText(backText); // Set the initial text to the back side
 
-            int checkedCount = 0;
-            // connect the card clicked signal to the slot that flips the card
-            QObject::connect(card, &QPushButton::clicked, [=](){
-                qDebug() << "Card clicked!";
-                    card->setStyleSheet("background-color: blue;");
-                    card->setChecked(true);
-
+            // Connect the card clicked signal to the slot that flips the card
+            QObject::connect(card, &QPushButton::clicked, [=]() {
+                if (card->text() == backText) {
+                    card->setText(frontText); // Flip to the front text
+                } else {
+                    card->setText(backText); // Flip to the back text
+                }
             });
 
-
-            gridLayout->addWidget(card, row, col); // add the card to the grid layout
-
-
+            gridLayout->addWidget(card, row, col);
+            cards.append(card); // Add the card to the list
         }
-
     }
+
     vlayout->addLayout(gridLayout);
-
-
     widget->setLayout(vlayout);
 
-    widget->resize(800, 600); // set the size of the widget
-    widget->show(); // show the widget
+    widget->resize(800, 600);
+    widget->show();
 
-
-
-
-    return app.exec(); // start the application event loop
+    return app.exec();
 }
