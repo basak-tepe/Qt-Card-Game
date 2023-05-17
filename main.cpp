@@ -26,21 +26,34 @@ int main(int argc, char *argv[])
     QWidget *widget = new QWidget;
 
     QLabel *label = new QLabel("Matching Cards Game", widget);
-    QFont font("Arial", 24);
+    QFont font("Helvetica", 32, QFont::Bold);
     label->setFont(font);
+    label->setStyleSheet("color: black;");
+    label->setAlignment(Qt::AlignCenter);
+
     int score = 0;
     int triesRemaining = 50;
 
     QLabel *scoreLabel = new QLabel(QString("Score: %1").arg(score), widget);
-    QFont font2("Arial", 16);
+    QFont font2("Arial", 16, QFont::Bold);
     scoreLabel->setFont(font2);
+    scoreLabel->setStyleSheet("color: #10A19D;");
 
     QLabel *triesLabel = new QLabel(QString("Number of tries Remaining: %1").arg(triesRemaining), widget);
-    QFont font3("Arial", 16);
+    QFont font3("Arial", 16, QFont::Bold);
     triesLabel->setFont(font3);
+    triesLabel->setStyleSheet("color: #10A19D;");
 
     QPushButton *newGameButton = new QPushButton("New Game", widget);
-    QFont font4("Arial", 16);
+    QFont font4("Arial", 14);
+    newGameButton->setStyleSheet("QPushButton {"
+                                 "background-color: #FFF6BD;"
+                                    "border: 5px dashed #86C8BC;" // Add border style
+                                    "border-radius: 30px;" // Add border radius for rounded corners
+                                    "color: black;"
+                                    "}");
+
+
     newGameButton->setFont(font4);
     newGameButton->setMinimumSize(QSize(100, 50));
 
@@ -76,10 +89,37 @@ int main(int argc, char *argv[])
     QPushButton *firstCard = nullptr; // Store the first opened card
     QPushButton *secondCard = nullptr; // Store the second opened card
 
+
+    // Create a function to reset the game state
+    auto resetGame = [&]() {
+        // Reset game variables
+        score = 0;
+        triesRemaining = 50;
+        scoreLabel->setText(QString("Score: %1").arg(score));
+        triesLabel->setText(QString("Number of tries Remaining: %1").arg(triesRemaining));
+
+        // Reset card states
+        for (QPushButton* card : cards) {
+            card->setEnabled(true);
+            card->setChecked(false);
+            card->setText("?");
+        }
+    };
+
+    //connect reset button to above.
+    QObject::connect(newGameButton, &QPushButton::clicked, resetGame);
+
     for (int row = 0; row < 5; ++row) {
         for (int col = 0; col < 6; ++col) {
             QPushButton *card = new QPushButton(widget);
             card->setFixedSize(100, 100);
+
+            card->setStyleSheet("QPushButton {"
+                                "background-color: #FFF6BD;"
+                                "border-radius: 40%;"
+                                "border: 6px solid #86C8BC;"
+                                "box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);"
+                                "}");
 
             QString text = animalNames.at(row * 6 + col);
             QString backText = "?";
@@ -144,12 +184,13 @@ int main(int argc, char *argv[])
     vlayout->addLayout(gridLayout);
     widget->setLayout(vlayout);
 
+    widget->setStyleSheet("background-color: white;");
+
     widget->resize(800, 600);
     widget->show();
 
     return app.exec();
 }
-
 
 
 
