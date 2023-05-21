@@ -152,6 +152,10 @@ int main(int argc, char *argv[])
                             // Cards match
                             score += 1;
                             scoreLabel->setText(QString("Score: %1").arg(score));
+                            triesRemaining -= 1;
+                            triesLabel->setText(QString("Number of tries Remaining: %1").arg(triesRemaining));
+
+
 
                             firstCard->setEnabled(false);
                             secondCard->setEnabled(false);
@@ -214,6 +218,5 @@ int main(int argc, char *argv[])
 
     return app.exec(); //running the app
 }
-
 
 
