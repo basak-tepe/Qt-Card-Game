@@ -26,7 +26,25 @@
  * Cards do not shuffle
  * win/lose messages need to be implemented.
  */
+void resetGame(QList<QPushButton*>& cards, QStringList& animalNames,QStringList& shuffledNames, QLabel* scoreLabel, QLabel* triesLabel) {
+    // Reset game variables
+    int score = 0;
+    int triesRemaining = 50;
+    scoreLabel->setText(QString("Score: %1").arg(score));
+    triesLabel->setText(QString("Number of tries Remaining: %1").arg(triesRemaining));
 
+    shuffledNames = animalNames;
+    std::random_shuffle(shuffledNames.begin(), shuffledNames.end());
+    // Reset card states
+    for (QPushButton* card : cards) {
+        card->setEnabled(true);
+        card->setChecked(false);
+        card->setText("?");
+        QString text = shuffledNames.first();
+        card->setProperty("realText", text);
+        shuffledNames.removeFirst();
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -35,6 +53,7 @@ int main(int argc, char *argv[])
     QMainWindow *mw = new QMainWindow;
 
     QWidget *widget = new QWidget; //all of the application is contained inside this widget.
+
 
 
     //game title
@@ -102,32 +121,23 @@ int main(int argc, char *argv[])
     // Double the list of animal names to form pairs.
     animalNames += animalNames;
 
+
     // Shuffle the animal names
     std::random_shuffle(animalNames.begin(), animalNames.end());
     QPushButton *firstCard = nullptr; // Store the first opened card
     QPushButton *secondCard = nullptr; // Store the second opened card
-
+    QStringList shuffledNames = animalNames;
 
     // Create a function to reset the game state
-    auto resetGame = [&]() {
-        // Reset game variables
-        score = 0;
-        triesRemaining = 50;
-        scoreLabel->setText(QString("Score: %1").arg(score));
-        triesLabel->setText(QString("Number of tries Remaining: %1").arg(triesRemaining));
 
-        // Reset card states
-        for (QPushButton* card : cards) {
-            card->setEnabled(true);
-            card->setChecked(false);
-            card->setText("?");
-        }
-    };
 
     //connect reset button to above.
     //clicked event (signal) calls the reset slot.
-    QObject::connect(newGameButton, &QPushButton::clicked, resetGame);
+    //QObject::connect(newGameButton, &QPushButton::clicked, resetGame);
     //QObject::connect(newGameButton, SIGNAL(clicked()), &app, SLOT(resetGame()));
+    QObject::connect(newGameButton, &QPushButton::clicked, [&]() {
+        resetGame(cards, animalNames,shuffledNames, scoreLabel, triesLabel);
+    });
 
 
     for (int row = 0; row < 5; ++row) {
@@ -142,17 +152,21 @@ int main(int argc, char *argv[])
                                 "box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);"
                                 "}");
 
-            QString text = animalNames.at(row * 6 + col);
+           // QString text = animalNames.at(row * 6 + col);
+            QString text = shuffledNames.first();
+            card->setProperty("realText", text);
+            shuffledNames.removeFirst();
+
             QString backText = "?";
             card->setText(backText);
-            QObject::connect(card, &QPushButton::clicked, [card,&firstCard,&secondCard,text,&cards,&score,&triesRemaining,backText, &scoreLabel, &card, &triesLabel]() mutable {
+            QObject::connect(card, &QPushButton::clicked, [card,&firstCard,&secondCard,text,&cards,&score,&triesRemaining,backText, &scoreLabel, &triesLabel]() mutable {
                 if (card->text() == backText) {
                     if (firstCard == nullptr) {
                         firstCard = card;
-                        firstCard->setText(text);
+                        firstCard->setText(card->property("realText").toString());
                     } else if (secondCard == nullptr) {
                         secondCard = card;
-                        secondCard->setText(text);
+                        secondCard->setText(card->property("realText").toString());
 
                         // Check if the cards match
                         if (firstCard->text() == secondCard->text()) {
@@ -233,4 +247,3 @@ int main(int argc, char *argv[])
 
     return app.exec(); //running the app
 }
-
