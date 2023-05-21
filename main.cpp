@@ -21,6 +21,13 @@
 #include <QTimer>
 
 
+/**
+ * PROBLEMS
+ * Cards do not shuffle
+ * win/lose messages need to be implemented.
+ */
+
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv); //our single app
@@ -168,9 +175,17 @@ int main(int argc, char *argv[])
 
                             // Check if the game is over (all cards matched)
                             if (score == 15) {
+                                //WIN
                                 // Game over
                                 // Display a message or perform any necessary actions
                             }
+
+                            if (triesRemaining == 0) {
+                                //LOST
+                                // Game over
+                                // Display a message or perform any necessary actions
+                            }
+
                         } else {
                             // Cards do not match
                             triesRemaining -= 1;
@@ -218,5 +233,4 @@ int main(int argc, char *argv[])
 
     return app.exec(); //running the app
 }
-
 
