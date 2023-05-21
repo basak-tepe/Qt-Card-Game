@@ -1,6 +1,7 @@
 #include <iostream>
 #include <QApplication>
 #include <QWidget>
+#include <QMainWindow>
 #include <QTextEdit>
 #include <QFont>
 #include <QLabel>
@@ -22,9 +23,14 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
-    QWidget *widget = new QWidget;
+    QApplication app(argc, argv); //our single app
 
+    QMainWindow *mw = new QMainWindow;
+
+    QWidget *widget = new QWidget; //all of the application is contained inside this widget.
+
+
+    //game title
     QLabel *label = new QLabel("Matching Cards Game", widget);
     QFont font("Helvetica", 32, QFont::Bold);
     label->setFont(font);
@@ -34,29 +40,33 @@ int main(int argc, char *argv[])
     int score = 0;
     int triesRemaining = 50;
 
+    //score display
     QLabel *scoreLabel = new QLabel(QString("Score: %1").arg(score), widget);
     QFont font2("Arial", 16, QFont::Bold);
     scoreLabel->setFont(font2);
     scoreLabel->setStyleSheet("color: #10A19D;");
 
+    //attempts display
     QLabel *triesLabel = new QLabel(QString("Number of tries Remaining: %1").arg(triesRemaining), widget);
     QFont font3("Arial", 16, QFont::Bold);
     triesLabel->setFont(font3);
     triesLabel->setStyleSheet("color: #10A19D;");
 
+    //new game button
     QPushButton *newGameButton = new QPushButton("New Game", widget);
     QFont font4("Arial", 14);
     newGameButton->setStyleSheet("QPushButton {"
                                  "background-color: #FFF6BD;"
-                                    "border: 5px dashed #86C8BC;" // Add border style
-                                    "border-radius: 30px;" // Add border radius for rounded corners
-                                    "color: black;"
-                                    "}");
+                                 "border: 5px dashed #86C8BC;" // Add border style
+                                 "border-radius: 30px;" // Add border radius for rounded corners
+                                 "color: black;"
+                                 "}");
 
 
     newGameButton->setFont(font4);
     newGameButton->setMinimumSize(QSize(100, 50));
 
+    //grid
     QHBoxLayout *hlayout1 = new QHBoxLayout();
     QHBoxLayout *hlayout2 = new QHBoxLayout();
     QVBoxLayout *vlayout = new QVBoxLayout(widget);
@@ -72,16 +82,17 @@ int main(int argc, char *argv[])
     QGridLayout *gridLayout = new QGridLayout(widget);
     gridLayout->setSpacing(10);
 
-    // Create a list to store the cards
+    // Create a list to store the cards.
+    // each card is of type qPushButton
     QList<QPushButton*> cards;
 
-    // Create a list of animal names
+    // A list of animal names as card backs.
     QStringList animalNames;
     animalNames << "Cat" << "Dog" << "Elephant" << "Lion" << "Giraffe"
                 << "Monkey" << "Tiger" << "Bear" << "Kangaroo" << "Penguin"
                 << "Snake" << "Zebra" << "Hippo" << "Owl" << "Koala";
 
-    // Double the list of animal names
+    // Double the list of animal names to form pairs.
     animalNames += animalNames;
 
     // Shuffle the animal names
@@ -107,7 +118,10 @@ int main(int argc, char *argv[])
     };
 
     //connect reset button to above.
+    //clicked event (signal) calls the reset slot.
     QObject::connect(newGameButton, &QPushButton::clicked, resetGame);
+    //QObject::connect(newGameButton, SIGNAL(clicked()), &app, SLOT(resetGame()));
+
 
     for (int row = 0; row < 5; ++row) {
         for (int col = 0; col < 6; ++col) {
@@ -157,6 +171,9 @@ int main(int argc, char *argv[])
                             // Cards do not match
                             triesRemaining -= 1;
                             triesLabel->setText(QString("Number of tries Remaining: %1").arg(triesRemaining));
+
+
+                            //we wait a little to show the user that the cards do not match
                             QTimer::singleShot(1000, [backText,&firstCard,&secondCard, &cards]()mutable  {
                                 // Flip the cards back to the back text
                                 firstCard->setText(backText);
@@ -181,15 +198,21 @@ int main(int argc, char *argv[])
         }
     }
 
+    //grid
     vlayout->addLayout(gridLayout);
     widget->setLayout(vlayout);
 
     widget->setStyleSheet("background-color: white;");
 
     widget->resize(800, 600);
-    widget->show();
 
-    return app.exec();
+
+    //adding the widget to main window
+    mw ->setCentralWidget(widget);
+    mw -> setWindowTitle("Pairs Game");
+    mw->show();
+
+    return app.exec(); //running the app
 }
 
 
