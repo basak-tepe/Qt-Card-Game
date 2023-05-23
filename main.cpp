@@ -19,13 +19,9 @@
 #include <QStringList>
 #include <algorithm>
 #include <QTimer>
+#include <QMessageBox>
 
 
-/**
- * PROBLEMS
- * Cards do not shuffle
- * win/lose messages need to be implemented.
- */
 void resetGame(QList<QPushButton*>& cards, QStringList& animalNames, QStringList& shuffledNames, QLabel* scoreLabel, QLabel* triesLabel, int& score, int& triesRemaining,QPushButton*& firstCard, QPushButton*& secondCard) {
     // Reset game variables
     score = 0;
@@ -136,8 +132,6 @@ int main(int argc, char *argv[])
 
     //connect reset button to above.
     //clicked event (signal) calls the reset slot.
-    //QObject::connect(newGameButton, &QPushButton::clicked, resetGame);
-    //QObject::connect(newGameButton, SIGNAL(clicked()), &app, SLOT(resetGame()));
     QObject::connect(newGameButton, &QPushButton::clicked, [&]() {
         resetGame(cards, animalNames,shuffledNames, scoreLabel, triesLabel,score,triesRemaining,firstCard,secondCard);
     });
@@ -189,21 +183,8 @@ int main(int argc, char *argv[])
 
                             // Disable the matched cards
 
-
-                            // Check if the game is over (all cards matched)
-                            if (score == 15) {
-                                //WIN
-                                // Game over
-                                // Display a message or perform any necessary actions
-                            }
-
-                            if (triesRemaining == 0) {
-                                //LOST
-                                // Game over
-                                // Display a message or perform any necessary actions
-                            }
-
-                        } else {
+                        }
+                        else {
                             // Cards do not match
                             triesRemaining -= 1;
                             triesLabel->setText(QString("Number of tries Remaining: %1").arg(triesRemaining));
@@ -223,11 +204,111 @@ int main(int argc, char *argv[])
                                 }
                             });
                         }
+
+
+                        // Check if the game is over (all cards matched)
+                        if (score == 15) {
+                            //WIN
+                            QMessageBox msg;
+                            msg.setWindowTitle("Game Over");
+                            msg.setText("You Won!");
+
+                            QPushButton* retryButton = msg.addButton("Play Again?", QMessageBox::ActionRole);
+                            QPushButton* okButton = msg.addButton("OK", QMessageBox::ActionRole);
+
+                            retryButton->setStyleSheet("QPushButton {"
+                                                       "background-color: #FFF6BD;"
+                                                       "border: 3px dashed #86C8BC;"
+                                                       "border-radius: 30px;"
+                                                       "color: black;"
+                                                       "}");
+
+                            okButton->setStyleSheet("QPushButton {"
+                                                    "background-color: #FFF6BD;"
+                                                    "border: 3px dashed #86C8BC;"
+                                                    "border-radius: 30px;"
+                                                    "color: black;"
+                                                    "}");
+
+
+                            retryButton->setFixedSize(200, 50);
+                            okButton->setFixedSize(200, 50);
+                            // A list of animal names as card backs.
+                            QStringList animalNames;
+                            animalNames << "Cat" << "Dog" << "Elephant" << "Lion" << "Giraffe"
+                                        << "Monkey" << "Tiger" << "Bear" << "Kangaroo" << "Penguin"
+                                        << "Snake" << "Zebra" << "Hippo" << "Owl" << "Koala";
+
+                            // Double the list of animal names to form pairs.
+                            animalNames += animalNames;
+
+                            QStringList shuffledNames = animalNames;
+
+
+                            QObject::connect(retryButton, &QPushButton::clicked, [&]() {
+                                resetGame(cards, animalNames,shuffledNames, scoreLabel, triesLabel,score,triesRemaining,firstCard,secondCard);
+                            });
+
+
+                            // Set the fixed size for the message box
+                            msg.setFixedSize(800, 400);
+
+                            msg.exec();
+
+                        }
+
+                        if (triesRemaining <= 0) {
+                            //LOST
+                            QMessageBox msg;
+                            msg.setWindowTitle("Game Over");
+                            msg.setText("You Lost.");
+
+                            QPushButton* retryButton = msg.addButton("Play Again?", QMessageBox::ActionRole);
+                            QPushButton* okButton = msg.addButton("OK", QMessageBox::ActionRole);
+
+                            retryButton->setStyleSheet("QPushButton {"
+                                                       "background-color: #FFF6BD;"
+                                                       "border: 3px dashed #86C8BC;"
+                                                       "border-radius: 30px;"
+                                                       "color: black;"
+                                                       "}");
+
+                            okButton->setStyleSheet("QPushButton {"
+                                                    "background-color: #FFF6BD;"
+                                                    "border: 3px dashed #86C8BC;"
+                                                    "border-radius: 30px;"
+                                                    "color: black;"
+                                                    "}");
+
+                            retryButton->setFixedSize(200, 50);
+                            okButton->setFixedSize(200, 50);
+
+
+                            // A list of animal names as card backs.
+                            QStringList animalNames;
+                            animalNames << "Cat" << "Dog" << "Elephant" << "Lion" << "Giraffe"
+                                        << "Monkey" << "Tiger" << "Bear" << "Kangaroo" << "Penguin"
+                                        << "Snake" << "Zebra" << "Hippo" << "Owl" << "Koala";
+
+                            // Double the list of animal names to form pairs.
+                            animalNames += animalNames;
+
+                            QStringList shuffledNames = animalNames;
+
+
+                            QObject::connect(retryButton, &QPushButton::clicked, [&]() {
+                                resetGame(cards, animalNames,shuffledNames, scoreLabel, triesLabel,score,triesRemaining,firstCard,secondCard);
+                            });
+
+
+                            // Set the fixed size for the message box
+                            msg.setFixedSize(800, 400);
+
+                            msg.exec();
+                        }
                     }
                 }
             });
-
-
 
             gridLayout->addWidget(card, row, col);
             cards.append(card); // Add the card to the list
