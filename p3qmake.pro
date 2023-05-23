@@ -1,4 +1,9 @@
-QT += widgets
+TARGET = PairsGame
 
-SOURCES += \
-    main.cpp
+SOURCES += main.cpp
+
+
+QT += widgets 
+
+QMAKE_MAKEFILE_GENERATE = YES
+
