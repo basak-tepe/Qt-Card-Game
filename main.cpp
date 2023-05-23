@@ -26,10 +26,10 @@
  * Cards do not shuffle
  * win/lose messages need to be implemented.
  */
-void resetGame(QList<QPushButton*>& cards, QStringList& animalNames,QStringList& shuffledNames, QLabel* scoreLabel, QLabel* triesLabel) {
+void resetGame(QList<QPushButton*>& cards, QStringList& animalNames, QStringList& shuffledNames, QLabel* scoreLabel, QLabel* triesLabel, int& score, int& triesRemaining,QPushButton*& firstCard, QPushButton*& secondCard) {
     // Reset game variables
-    int score = 0;
-    int triesRemaining = 50;
+    score = 0;
+    triesRemaining = 50;
     scoreLabel->setText(QString("Score: %1").arg(score));
     triesLabel->setText(QString("Number of tries Remaining: %1").arg(triesRemaining));
 
@@ -44,7 +44,10 @@ void resetGame(QList<QPushButton*>& cards, QStringList& animalNames,QStringList&
         card->setProperty("realText", text);
         shuffledNames.removeFirst();
     }
+    firstCard=nullptr;
+    secondCard=nullptr;
 }
+
 
 int main(int argc, char *argv[])
 {
@@ -136,7 +139,7 @@ int main(int argc, char *argv[])
     //QObject::connect(newGameButton, &QPushButton::clicked, resetGame);
     //QObject::connect(newGameButton, SIGNAL(clicked()), &app, SLOT(resetGame()));
     QObject::connect(newGameButton, &QPushButton::clicked, [&]() {
-        resetGame(cards, animalNames,shuffledNames, scoreLabel, triesLabel);
+        resetGame(cards, animalNames,shuffledNames, scoreLabel, triesLabel,score,triesRemaining,firstCard,secondCard);
     });
 
 
@@ -152,7 +155,7 @@ int main(int argc, char *argv[])
                                 "box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);"
                                 "}");
 
-           // QString text = animalNames.at(row * 6 + col);
+            // QString text = animalNames.at(row * 6 + col);
             QString text = shuffledNames.first();
             card->setProperty("realText", text);
             shuffledNames.removeFirst();
